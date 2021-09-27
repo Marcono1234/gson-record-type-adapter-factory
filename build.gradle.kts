@@ -1,6 +1,7 @@
 plugins {
     `java-library`
     `maven-publish`
+    id("pl.allegro.tech.build.axion-release") version "1.13.3"
 }
 
 repositories {
@@ -8,7 +9,8 @@ repositories {
 }
 
 group = "marcono1234.gson"
-version = "1.0.0-SNAPSHOT"
+// See https://axion-release-plugin.readthedocs.io/en/latest/
+version = scmVersion.version
 
 java {
     toolchain {
