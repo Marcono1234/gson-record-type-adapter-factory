@@ -366,16 +366,40 @@ class RecordTypeAdapterFactoryTest {
             return i1 == sub.i1 && i2 == sub.i2;
         }
     }
-    record RuntimeType(Base b) { }
+    static class CustomAdapter extends TypeAdapter<Base> {
+        public CustomAdapter() { }
+
+        @Override
+        public void write(JsonWriter out, Base value) throws IOException {
+            if (value == null) {
+                out.value("custom-write-null");
+            } else {
+                out.value("custom-write");
+            }
+        }
+
+        @Override
+        public Base read(JsonReader in) throws IOException {
+            in.skipValue();
+            return new Base(-1);
+        }
+    }
+    record RuntimeType(
+        Base b,
+        @JsonAdapter(value = CustomAdapter.class, nullSafe = false)
+        Base annotated
+    ) { }
 
     @Test
     void testNoRuntimeType() throws IOException {
         TypeAdapter<RuntimeType> typeAdapter = getDefaultAdapter(RuntimeType.class);
-        String json = typeAdapter.toJson(new RuntimeType(new Sub(1, 2)));
-        assertEquals("{\"b\":{\"i1\":1}}", json);
+        Sub value = new Sub(1, 2);
+        String json = typeAdapter.toJson(new RuntimeType(value, value));
+        assertEquals("{\"b\":{\"i1\":1},\"annotated\":\"custom-write\"}", json);
 
-        RuntimeType actual = typeAdapter.fromJson("{\"b\":{\"i1\":1}}");
+        RuntimeType actual = typeAdapter.fromJson("{\"b\":{\"i1\":1},\"annotated\":2}");
         assertEquals(new Base(1), actual.b);
+        assertEquals(new Base(-1), actual.annotated);
     }
 
     @Test
@@ -384,12 +408,15 @@ class RecordTypeAdapterFactoryTest {
             RuntimeType.class,
             RecordTypeAdapterFactory.builder().serializeRuntimeComponentTypes()
         );
-        String json = typeAdapter.toJson(new RuntimeType(new Sub(1, 2)));
-        assertEquals("{\"b\":{\"i2\":2,\"i1\":1}}", json);
+        Sub value = new Sub(1, 2);
+        String json = typeAdapter.toJson(new RuntimeType(value, value));
+        // Runtime type is only used for non-annotated component
+        assertEquals("{\"b\":{\"i2\":2,\"i1\":1},\"annotated\":\"custom-write\"}", json);
 
-        RuntimeType actual = typeAdapter.fromJson("{\"b\":{\"i2\":2,\"i1\":1}}");
+        RuntimeType actual = typeAdapter.fromJson("{\"b\":{\"i2\":2,\"i1\":1},\"annotated\":3}");
         // Uses compile-time type Base for deserialization
         assertEquals(new Base(1), actual.b);
+        assertEquals(new Base(-1), actual.annotated);
     }
 
     @Test
@@ -426,14 +453,15 @@ class RecordTypeAdapterFactoryTest {
 
         // Verify that test is set up correctly; serialize non-null
         {
-            String json = typeAdapter.toJson(new RuntimeType(new Sub(1, 2)));
-            assertEquals("{\"b\":\"sub\"}", json);
+            Sub value = new Sub(1, 2);
+            String json = typeAdapter.toJson(new RuntimeType(value, value));
+            assertEquals("{\"b\":\"sub\",\"annotated\":\"custom-write\"}", json);
         }
 
         {
-            String json = typeAdapter.toJson(new RuntimeType(null));
-            // Should use compile-time type adapter
-            assertEquals("{\"b\":\"base-null\"}", json);
+            String json = typeAdapter.toJson(new RuntimeType(null, null));
+            // Should use compile-time type adapter / JsonAdapter type adapter
+            assertEquals("{\"b\":\"base-null\",\"annotated\":\"custom-write-null\"}", json);
         }
     }
 

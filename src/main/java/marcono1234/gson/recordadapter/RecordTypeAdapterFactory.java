@@ -137,7 +137,8 @@ public class RecordTypeAdapterFactory implements TypeAdapterFactory {
          * certain types, such as type variables. Note that enabling this setting can make serialization
          * and deserialization asymmetric; an object can be serialized to JSON but trying to deserialize
          * the JSON data again might fail. If the value of a Record component is {@code null} the type
-         * adapter for the compile-time type will be used to serialize the {@code null}.
+         * adapter for the compile-time type will be used to serialize the {@code null}. Record components
+         * annotated with {@link JsonAdapter @JsonAdapter} are not affected by this setting.
          *
          * <p>Here is an example showing the effect of this setting:
          * <pre>{@code
@@ -411,6 +412,8 @@ public class RecordTypeAdapterFactory implements TypeAdapterFactory {
         JsonAdapter jsonAdapterAnnotation = getComponentField(component).getAnnotation(JsonAdapter.class);
         if (jsonAdapterAnnotation == null) {
             TypeAdapter<?> adapter = gson.getAdapter(componentTypeToken);
+            // Only create runtime type type adapter if no JsonAdapter annotation exists, matching behavior
+            // of Gson's ReflectiveTypeAdapterFactory
             if (serializeRuntimeComponentTypes && needsRuntimeTypeTypeAdapter(componentType)) {
                 return new RuntimeTypeTypeAdapter<>(gson, adapter);
             } else {
