@@ -446,6 +446,9 @@ public class RecordTypeAdapterFactory implements TypeAdapterFactory {
             typeAdapter = (TypeAdapter<?>) adapter;
         } else if (adapter instanceof TypeAdapterFactory factory) {
             typeAdapter = factory.create(gson, componentTypeToken);
+            if (typeAdapter == null) {
+                throw new RecordTypeAdapterException("Factory " + factory + " of type " + factory.getClass().getName() + " does not support type " + componentTypeToken + " of component " + getComponentDisplayString(component));
+            }
         } else if (adapter instanceof JsonSerializer || adapter instanceof JsonDeserializer) {
             @SuppressWarnings("unchecked")
             JsonSerializer<Object> serializer = adapter instanceof JsonSerializer ? (JsonSerializer<Object>) adapter : null;

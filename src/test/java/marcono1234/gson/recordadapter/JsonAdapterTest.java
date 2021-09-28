@@ -240,6 +240,38 @@ class JsonAdapterTest {
         assertEquals(new WithDelegatingAdapterFactory("delegated-read:a"), typeAdapter.fromJson("{\"s\":\"a\"}"));
     }
 
+    static class FactoryNullAdapter implements TypeAdapterFactory {
+        public FactoryNullAdapter() { }
+
+        @Override
+        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+            return null;
+        }
+
+        @Override
+        public String toString() {
+            return "NULL-ADAPTER-FACTORY";
+        }
+    }
+
+    record WithCustomAdapterFactoryNullAdapter(
+        @JsonAdapter(FactoryNullAdapter.class)
+        String s
+    ) { }
+
+    /**
+     * Test usage of type adapter factory which does not support annotated component type
+     * (returns null)
+     */
+    @Test
+    void testFactory_NullAdapter() {
+        Exception e = assertThrows(RecordTypeAdapterException.class, () -> getDefaultAdapter(WithCustomAdapterFactoryNullAdapter.class));
+        assertEquals(
+            "Factory NULL-ADAPTER-FACTORY of type " + FactoryNullAdapter.class.getName() + " does not support type java.lang.String of component " + WithCustomAdapterFactoryNullAdapter.class.getName() + ".s",
+            e.getMessage()
+        );
+    }
+
     static class Base {
         int i1;
 
