@@ -35,7 +35,7 @@ repositories {
         }
         filter {
             // Only use JitPack for the `gson-record-type-adapter-factory` library
-            includeGroup("com.github.Marcono1234")
+            includeModule("com.github.Marcono1234", "gson-record-type-adapter-factory")
         }
     }
 }
