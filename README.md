@@ -69,9 +69,6 @@ feature automatically downloads the needed JDK. Some IDEs do not support toolcha
 configure them manually.
 
 ## Known issues
-- **Does not work for local Record classes.**  
-This type adapter factory does not work yet for Record classes declared locally in the body of a method. This will be
-fixed in a future Gson version, see [corresponding pull request](https://github.com/google/gson/pull/1969).
 - **Using a type adapter factory as value for `@JsonAdapter` on a Record component and calling `Gson.getDelegateAdapter`
 inside the factory does not work correctly.**  
 The underlying issue is a [known bug](https://github.com/google/gson/issues/1028) in the implementation of

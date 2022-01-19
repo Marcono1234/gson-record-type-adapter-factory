@@ -21,10 +21,11 @@ java {
     withJavadocJar()
 }
 
+val gsonVersion = "2.8.9"
 dependencies {
-    api("com.google.code.gson:gson:2.8.8")
+    api("com.google.code.gson:gson:$gsonVersion")
 
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
     // Manually declare dependency as workaround for https://github.com/junit-team/junit5/issues/2730
     testImplementation("org.apiguardian:apiguardian-api:1.1.2")
 }
@@ -69,8 +70,8 @@ tasks.test {
 tasks.javadoc {
     options {
         // Workaround to use Standard Doclet options, see https://github.com/gradle/gradle/issues/7038#issuecomment-448294937
-        this as StandardJavadocDocletOptions // unsafe cast
-        links = listOf("https://javadoc.io/doc/com.google.code.gson/gson/latest/")
+        this as StandardJavadocDocletOptions
+        links = listOf("https://javadoc.io/doc/com.google.code.gson/gson/$gsonVersion/")
     }
 }
 

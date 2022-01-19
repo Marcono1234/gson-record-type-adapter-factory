@@ -302,7 +302,6 @@ class RecordTypeAdapterFactoryTest {
         assertEquals(new N(0), actual);
     }
 
-    @Disabled("Not yet supported, see https://github.com/google/gson/pull/1969")
     @Test
     void testLocalRecord() throws IOException {
         record L(int i) { }
