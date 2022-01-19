@@ -24,47 +24,30 @@ java {
 val gsonVersion = "2.8.9"
 dependencies {
     api("com.google.code.gson:gson:$gsonVersion")
-
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
-    // Manually declare dependency as workaround for https://github.com/junit-team/junit5/issues/2730
-    testImplementation("org.apiguardian:apiguardian-api:1.1.2")
 }
 
-// Separate source set for blackbox module testing
-// Based on https://docs.gradle.org/current/userguide/java_testing.html#sec:configuring_java_integration_tests
-// TODO: Maybe move to separate subproject? See https://docs.gradle.org/current/userguide/java_testing.html#blackbox_integration_testing
-val testModularSourceSetName = "test-modular"
-sourceSets {
-    create(testModularSourceSetName) {
-        compileClasspath += sourceSets.main.get().output
-        runtimeClasspath += sourceSets.main.get().output
+val junitVersion = "5.8.2"
+testing {
+    suites {
+        val test by getting(JvmTestSuite::class) {
+            useJUnitJupiter(junitVersion)
+        }
+
+        // Separate test suite for blackbox module testing
+        val testModular by registering(JvmTestSuite::class) {
+            useJUnitJupiter(junitVersion)
+            dependencies {
+                implementation(project)
+
+                // Manually declare dependency as workaround for https://github.com/gradle/gradle/issues/18627
+                implementation("org.apiguardian:apiguardian-api:1.1.2")
+            }
+        }
     }
 }
 
-val testModularImplementation by configurations.getting {
-    extendsFrom(configurations.implementation.get())
-    extendsFrom(configurations.testImplementation.get())
-}
-
-val testModularRuntimeOnly by configurations.getting {
-    extendsFrom(configurations.runtimeOnly.get())
-}
-
-val testModular = task<Test>("testModular") {
-    description = "Runs blackbox module tests."
-    group = "verification"
-
-    testClassesDirs = sourceSets[testModularSourceSetName].output.classesDirs
-    classpath = sourceSets[testModularSourceSetName].runtimeClasspath
-    useJUnitPlatform()
-}
-
 tasks.check {
-    dependsOn(testModular)
-}
-
-tasks.test {
-    useJUnitPlatform()
+    dependsOn(testing.suites.named("testModular"))
 }
 
 tasks.javadoc {
