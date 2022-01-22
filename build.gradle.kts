@@ -56,6 +56,8 @@ tasks.javadoc {
         this as StandardJavadocDocletOptions
         links = listOf("https://javadoc.io/doc/com.google.code.gson/gson/$gsonVersion/")
     }
+
+    shouldRunAfter(tasks.check)
 }
 
 // Make build reproducible
