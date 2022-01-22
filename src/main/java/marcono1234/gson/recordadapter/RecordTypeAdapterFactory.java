@@ -69,7 +69,7 @@ import java.util.stream.Collectors;
 public class RecordTypeAdapterFactory implements TypeAdapterFactory {
     private static final boolean DEFAULT_SERIALIZE_RUNTIME_COMPONENT_TYPES = false;
     private static final boolean DEFAULT_ALLOW_MISSING_COMPONENT_VALUES = false;
-    private static final boolean DEFAULT_ALLOW_UNKNOWN_PROPERTIES = false;
+    private static final boolean DEFAULT_ALLOW_UNKNOWN_PROPERTIES = true;
     private static final boolean DEFAULT_ALLOW_DUPLICATE_COMPONENT_VALUES = false;
     private static final boolean DEFAULT_ALLOW_JSON_NULL_FOR_PRIMITIVES = false;
     private static final RecordComponentNamingStrategy DEFAULT_NAMING_STRATEGY = RecordComponentNamingStrategy.IDENTITY;
@@ -80,8 +80,10 @@ public class RecordTypeAdapterFactory implements TypeAdapterFactory {
      * <ul>
      *     <li>always serializes the compile-time type of Record components (see also {@link Builder#serializeRuntimeComponentTypes() serializeRuntimeComponentTypes()})</li>
      *     <li>does not allow missing Record component values (see also {@link Builder#allowMissingComponentValues() allowMissingComponentValues()})</li>
-     *     <li>does not allow unknown JSON properties (see also {@link Builder#allowUnknownProperties() allowUnknownProperties()})</li>
-     *     <li>does not allow duplicate Record component values (see also {@link Builder#allowDuplicateComponentValues() allowDuplicateComponentValues()})</li>
+     *     <li>allows unknown JSON properties (see also {@link Builder#disallowUnknownProperties() disallowUnknownProperties()})</li>
+     *     <li>does not allow duplicate Record component values (see also {@link Builder#allowDuplicateComponentValues() allowDuplicateComponentValues()}),
+     *          however duplicate unknown JSON properties are allowed
+     *     </li>
      *     <li>does not allow JSON null for Record components of primitive types (see also {@link Builder#allowJsonNullForPrimitiveComponents() allowJsonNullForPrimitiveComponents()})</li>
      *     <li>uses {@link RecordComponentNamingStrategy#IDENTITY}, that means JSON property names will be the same as
      *          the Record component names</li>
@@ -191,16 +193,21 @@ public class RecordTypeAdapterFactory implements TypeAdapterFactory {
         }
 
         /**
-         * Configures the {@code RecordTypeAdapterFactory} to allow JSON properties during deserialization
-         * which do not correspond to any Record component. Note that for unknown properties no duplicate
-         * checks are performed (see also {@link #allowDuplicateComponentValues()}).
+         * Configures the {@code RecordTypeAdapterFactory} to disallow JSON properties during deserialization
+         * which do not correspond to any Record component. This can be useful in security critical contexts
+         * to make sure the application 'understands' the complete provided JSON data. However, a big
+         * disadvantage of disallowing unknown properties is that the service producing the JSON data cannot
+         * be extended to include additional properties without breaking all applications which disallow
+         * unknown properties, even if the JSON data change itself would be backward compatible.
          *
-         * <p>By default unknown properties will cause the deserialization to fail.
+         * <p>By default unknown properties are allowed and will simply be ignored. Additionally, they will
+         * not be rejected when they appear multiple times, unlike known properties (see also
+         * {@link #allowDuplicateComponentValues()}).
          *
          * @return <i>this</i>
          */
-        public Builder allowUnknownProperties() {
-            allowUnknownProperties = true;
+        public Builder disallowUnknownProperties() {
+            allowUnknownProperties = false;
             return this;
         }
 
@@ -214,7 +221,9 @@ public class RecordTypeAdapterFactory implements TypeAdapterFactory {
          * for example they might use the value of the first (instead of the last) occurring property.
          * An adversary could exploit this by creating forged JSON data with duplicate component values.
          *
-         * <p>By default duplicate component values will cause the deserialization to fail.
+         * <p>By default duplicate component values will cause the deserialization to fail. However,
+         * duplicate JSON properties which do not correspond to any Record component will be ignored
+         * (see also {@link #disallowUnknownProperties()}).
          *
          * @return <i>this</i>
          */

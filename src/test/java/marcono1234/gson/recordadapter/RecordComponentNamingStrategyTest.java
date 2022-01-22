@@ -24,7 +24,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 class RecordComponentNamingStrategyTest {
     /** Used for testing Record component name transformation, see below */

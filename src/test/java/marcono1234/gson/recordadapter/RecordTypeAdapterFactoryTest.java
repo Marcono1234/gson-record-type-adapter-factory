@@ -8,7 +8,6 @@ import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -230,20 +229,21 @@ class RecordTypeAdapterFactoryTest {
     }
 
     @Test
-    void testFromJson_UnknownProperty() {
+    void testFromJson_UnknownProperty() throws IOException {
         TypeAdapter<N> typeAdapter = getDefaultAdapter(N.class);
-        Exception e = assertThrows(JsonParseException.class, () -> typeAdapter.fromJson("{\"i\":1,\"x\":2}"));
-        assertEquals("Unknown property 'x' for " + N.class + " at JSON path $.x", e.getMessage());
+        // Unknown property 'x' should be ignored
+        N actual = typeAdapter.fromJson("{\"i\":1,\"x\":2}");
+        assertEquals(new N(1), actual);
     }
 
     @Test
-    void testFromJson_UnknownProperty_Allowed() throws IOException {
+    void testFromJson_UnknownProperty_Disallowed() {
         TypeAdapter<N> typeAdapter = getAdapter(
             N.class,
-            RecordTypeAdapterFactory.builder().allowUnknownProperties()
+            RecordTypeAdapterFactory.builder().disallowUnknownProperties()
         );
-        N actual = typeAdapter.fromJson("{\"i\":1,\"x\":2}");
-        assertEquals(new N(1), actual);
+        Exception e = assertThrows(JsonParseException.class, () -> typeAdapter.fromJson("{\"i\":1,\"x\":2}"));
+        assertEquals("Unknown property 'x' for " + N.class + " at JSON path $.x", e.getMessage());
     }
 
     @Test
@@ -265,12 +265,9 @@ class RecordTypeAdapterFactoryTest {
 
     @Test
     void testFromJson_DuplicateUnknownPropertyIgnored() throws IOException {
-        TypeAdapter<N> typeAdapter = getAdapter(
-            N.class,
-            RecordTypeAdapterFactory.builder().allowUnknownProperties()
-        );
+        TypeAdapter<N> typeAdapter = getDefaultAdapter(N.class);
         // Duplicate unknown property 'x' should be ignored
-        N actual = typeAdapter.fromJson("{\"i\":1,\"x\":2,\"x\":2}");
+        N actual = typeAdapter.fromJson("{\"i\":1,\"x\":2,\"x\":3}");
         assertEquals(new N(1), actual);
     }
 

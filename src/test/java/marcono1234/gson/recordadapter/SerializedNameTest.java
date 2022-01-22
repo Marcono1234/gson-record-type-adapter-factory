@@ -36,7 +36,10 @@ class SerializedNameTest {
      */
     @Test
     void testFromJson_ComponentName() {
-        TypeAdapter<CustomName> typeAdapter = getDefaultAdapter(CustomName.class);
+        TypeAdapter<CustomName> typeAdapter = getAdapter(
+            CustomName.class,
+            RecordTypeAdapterFactory.builder().disallowUnknownProperties()
+        );
         Exception e = assertThrows(JsonParseException.class, () -> typeAdapter.fromJson("{\"i\":1}"));
         assertEquals("Unknown property 'i' for " + CustomName.class + " at JSON path $.i", e.getMessage());
     }
