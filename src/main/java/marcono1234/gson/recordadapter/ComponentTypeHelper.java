@@ -226,11 +226,12 @@ class ComponentTypeHelper {
         return resolvedComponentTypes;
     }
 
-    private static class GenericArrayTypeImpl implements GenericArrayType {
+    // Package-private for testing
+    static class GenericArrayTypeImpl implements GenericArrayType {
         private final Type componentType;
 
-        private GenericArrayTypeImpl(Type componentType) {
-            this.componentType = componentType;
+        GenericArrayTypeImpl(Type componentType) {
+            this.componentType = Objects.requireNonNull(componentType);
         }
 
         @Override
@@ -242,8 +243,8 @@ class ComponentTypeHelper {
         @Override
         public boolean equals(Object obj) {
             if (obj == this) return true;
-            if (obj instanceof GenericArrayTypeImpl other) {
-                return Objects.equals(this.componentType, other.componentType);
+            if (obj instanceof GenericArrayType other) {
+                return Objects.equals(this.componentType, other.getGenericComponentType());
             }
             return false;
         }
@@ -261,14 +262,20 @@ class ComponentTypeHelper {
 
     }
 
-    private static class ParameterizedTypeImpl implements ParameterizedType {
+    // Package-private for testing
+    static class ParameterizedTypeImpl implements ParameterizedType {
         private final Type rawType;
         private final Type ownerType;
         private final Type[] typeArguments;
 
-        private ParameterizedTypeImpl(Type rawType, Type ownerType, Type[] typeArguments) {
-            this.rawType = rawType;
-            this.ownerType = ownerType;
+        ParameterizedTypeImpl(Type rawType, Type ownerType, Type[] typeArguments) {
+            this.rawType = Objects.requireNonNull(rawType);
+            this.ownerType = ownerType; // ownerType may be null
+
+            // Implicit null check
+            if (typeArguments.length == 0) {
+                throw new IllegalArgumentException("Must provide type arguments");
+            }
             this.typeArguments = typeArguments;
         }
 
@@ -308,7 +315,6 @@ class ComponentTypeHelper {
                 ^ Objects.hashCode(rawType);
         }
 
-        // TODO Test
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
@@ -337,14 +343,23 @@ class ComponentTypeHelper {
 
     }
 
-    private static class WildcardTypeImpl implements WildcardType {
+    // Package-private for testing
+    static class WildcardTypeImpl implements WildcardType {
         private final Type[] lowerBounds;
         private final Type[] upperBounds;
 
-        private WildcardTypeImpl(Type[] lowerBounds, Type[] upperBounds) {
+        WildcardTypeImpl(Type[] lowerBounds, Type[] upperBounds) {
+            if (upperBounds.length == 0) {
+                throw new IllegalArgumentException("At least Object is required as upper bound");
+            }
+
+            // If lower bounds are specified, upper bounds must consist only of Object.class
+            if (lowerBounds.length > 0 && (upperBounds.length != 1 || upperBounds[0] != Object.class)) {
+                throw new IllegalArgumentException("Malformed bounds: lower=" + Arrays.toString(lowerBounds) + ", upper=" + Arrays.toString(upperBounds));
+            }
+
             this.lowerBounds = lowerBounds;
             this.upperBounds = upperBounds;
-            assert !(lowerBounds.length > 0 && upperBounds.length > 0 && !(upperBounds.length == 1 && upperBounds[0] == Object.class));
         }
 
         @Override

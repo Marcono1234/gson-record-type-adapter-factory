@@ -13,6 +13,7 @@
 - Update Gson dependency to 2.8.9
 - Make Gradle builds reproducible
 - Make exception for clashing property names deterministic
+- Fix bug in internal `GenericArrayTypeImpl.equals`
 
 ## [0.1.0] - 2021-09-27
 
