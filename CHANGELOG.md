@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased 0.2.0] - ???
+## [Unreleased ???] - ???
 
 ### Breaking changes
 - Allow unknown JSON properties by default ([#1](https://github.com/Marcono1234/gson-record-type-adapter-factory/issues/1))

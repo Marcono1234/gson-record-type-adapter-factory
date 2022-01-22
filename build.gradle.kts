@@ -1,3 +1,7 @@
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+
 plugins {
     `java-library`
     `maven-publish`
@@ -11,6 +15,27 @@ repositories {
 group = "marcono1234.gson"
 // See https://axion-release-plugin.readthedocs.io/en/latest/
 version = scmVersion.version
+
+typealias HooksConfig = pl.allegro.tech.build.axion.release.domain.hooks.HooksConfig
+typealias HookContext = pl.allegro.tech.build.axion.release.domain.hooks.HookContext
+scmVersion {
+    // Plugin does not support Kotlin DSL yet, see https://github.com/allegro/axion-release-plugin/issues/285
+    hooks(closureOf<HooksConfig> {
+        // See pl.allegro.tech.build.axion.release.domain.hooks.FileUpdateHookAction
+        pre("fileUpdate", mapOf<Any, Any>(
+            "file" to "CHANGELOG.md",
+            // Use positive lookbehind to insert release header behind it
+            "pattern" to KotlinClosure2<String, HookContext, String>(
+                {previousVersion, hookContext -> "(?<=${Regex.escape("## [Unreleased ???] - ???")})"}
+            ),
+            "replacement" to KotlinClosure2<String, HookContext, String>(
+                {releaseVersion, hookContext -> "\n\n## [$releaseVersion] - ${DateTimeFormatter.ISO_LOCAL_DATE.format(LocalDate.now(ZoneOffset.UTC))}"}
+            )
+        ))
+        // Commit CHANGELOG file with default release message
+        pre("commit")
+    })
+}
 
 java {
     toolchain {
