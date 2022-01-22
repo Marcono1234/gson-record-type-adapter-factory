@@ -10,6 +10,7 @@ import java.lang.reflect.WildcardType;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -135,7 +136,7 @@ class ComponentTypeHelper {
         } else if (type instanceof ParameterizedType parameterizedType) {
             Type[] typeArguments = parameterizedType.getActualTypeArguments();
             // Type variables for which a wildcard without upper bound was used as type argument
-            Set<TypeVariable<?>> wildcardsToResolve = new HashSet<>();
+            Set<TypeVariable<?>> wildcardsToResolve = new LinkedHashSet<>();
             for (int i = 0; i < typeArguments.length; i++) {
                 Type typeArgument = typeArguments[i];
                 TypeVariable<?> typeVariable = typeVariables[i];

@@ -27,7 +27,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -388,7 +388,7 @@ public class RecordTypeAdapterFactory implements TypeAdapterFactory {
             return new ComponentNames(name, Set.of(name));
         }
 
-        Set<String> deserializationNames = new HashSet<>();
+        Set<String> deserializationNames = new LinkedHashSet<>();
         deserializationNames.add(name);
         for (String alternate : alternates) {
             if (!deserializationNames.add(alternate)) {
