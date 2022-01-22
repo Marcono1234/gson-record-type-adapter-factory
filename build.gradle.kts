@@ -58,6 +58,12 @@ tasks.javadoc {
     }
 }
 
+// Make build reproducible
+tasks.withType<AbstractArchiveTask>().configureEach {
+    isPreserveFileTimestamps = false
+    isReproducibleFileOrder = true
+}
+
 publishing {
     publications {
         create<MavenPublication>("maven") {
