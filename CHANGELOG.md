@@ -2,6 +2,8 @@
 
 ## [Unreleased ???] - ???
 
+## [0.2.0] - 2022-01-22
+
 ### Breaking changes
 - Allow unknown JSON properties by default ([#1](https://github.com/Marcono1234/gson-record-type-adapter-factory/issues/1))
   - `RecordTypeAdapterFactory.DEFAULT` (and the no-args constructor) has been changed to allow unknown JSON properties.
