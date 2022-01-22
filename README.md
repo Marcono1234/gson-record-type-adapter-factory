@@ -58,6 +58,10 @@ record MyRecord(int i) { }
 
 A customized type adapter factory can be created using `RecordTypeAdapterFactory.builder()`.
 
+## Changelog
+
+See [`CHANGELOG.md`](./CHANGELOG.md).
+
 ## Building
 This project uses Gradle for building; just run:
 ```
