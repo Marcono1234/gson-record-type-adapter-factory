@@ -271,12 +271,7 @@ class ComponentTypeHelper {
         ParameterizedTypeImpl(Type rawType, Type ownerType, Type[] typeArguments) {
             this.rawType = Objects.requireNonNull(rawType);
             this.ownerType = ownerType; // ownerType may be null
-
-            // Implicit null check
-            if (typeArguments.length == 0) {
-                throw new IllegalArgumentException("Must provide type arguments");
-            }
-            this.typeArguments = typeArguments;
+            this.typeArguments = typeArguments.clone(); // implicit null check
         }
 
         @Override
@@ -330,14 +325,13 @@ class ComponentTypeHelper {
             } else {
                 sb.append(rawType.getTypeName());
             }
-            sb.append('<');
-            StringJoiner typeArgumentsJoiner = new StringJoiner(", ");
+            StringJoiner typeArgumentsJoiner = new StringJoiner(", ", "<", ">");
+            typeArgumentsJoiner.setEmptyValue("");
             for (Type typeArgument : typeArguments) {
                 typeArgumentsJoiner.add(typeArgument.getTypeName());
             }
             //noinspection UnnecessaryToStringCall
             sb.append(typeArgumentsJoiner.toString());
-            sb.append('>');
             return sb.toString();
         }
 
@@ -349,6 +343,8 @@ class ComponentTypeHelper {
         private final Type[] upperBounds;
 
         WildcardTypeImpl(Type[] lowerBounds, Type[] upperBounds) {
+            lowerBounds = lowerBounds.clone();
+            upperBounds = upperBounds.clone();
             if (upperBounds.length == 0) {
                 throw new IllegalArgumentException("At least Object is required as upper bound");
             }

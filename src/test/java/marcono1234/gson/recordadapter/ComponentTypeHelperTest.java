@@ -150,10 +150,16 @@ class ComponentTypeHelperTest {
         private Map.Entry<Integer, Boolean> f3;
 
         @SuppressWarnings("InnerClassMayBeStatic")
-        private class Inner<U> {
+        private class Inner {
         }
 
-        private ParameterizedTypeImplTest<String>.Inner<Boolean> f4;
+        private ParameterizedTypeImplTest<String>.Inner f4;
+
+        @SuppressWarnings("InnerClassMayBeStatic")
+        private class InnerWithParam<U> {
+        }
+
+        private ParameterizedTypeImplTest<String>.InnerWithParam<Boolean> f5;
 
         private Type getTypeVariable() {
             return getClass().getTypeParameters()[0];
@@ -189,10 +195,23 @@ class ComponentTypeHelperTest {
                             ComponentTypeHelperTest.class,
                             new Type[] {String.class}
                         ),
-                        new Type[] {Boolean.class}
+                        new Type[0]
                     ),
                     getFieldType("f4"),
-                    "marcono1234.gson.recordadapter.ComponentTypeHelperTest$ParameterizedTypeImplTest<java.lang.String>$Inner<java.lang.Boolean>"
+                    "marcono1234.gson.recordadapter.ComponentTypeHelperTest$ParameterizedTypeImplTest<java.lang.String>$Inner"
+                ),
+                new TestData(
+                    new ComponentTypeHelper.ParameterizedTypeImpl(
+                        InnerWithParam.class,
+                        new ComponentTypeHelper.ParameterizedTypeImpl(
+                            ParameterizedTypeImplTest.class,
+                            ComponentTypeHelperTest.class,
+                            new Type[] {String.class}
+                        ),
+                        new Type[] {Boolean.class}
+                    ),
+                    getFieldType("f5"),
+                    "marcono1234.gson.recordadapter.ComponentTypeHelperTest$ParameterizedTypeImplTest<java.lang.String>$InnerWithParam<java.lang.Boolean>"
                 )
             );
         }
