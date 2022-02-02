@@ -2,6 +2,8 @@
 
 ## [Unreleased ???] - ???
 
+- Fix ParameterizedTypeImpl not supporting empty type arguments
+
 ## [0.2.0] - 2022-01-22
 
 ### Breaking changes
