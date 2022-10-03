@@ -5,6 +5,7 @@
 - Fix `ParameterizedTypeImpl` not supporting empty type arguments
 - Update Gson dependency to 2.9.1 and add `RecordComponentNamingStrategy.UPPER_CASE_WITH_UNDERSCORES`, matching Gson's
   new `FieldNamingPolicy` entry
+- Detect unsupported usage of Gson annotations `@Expose`, `@Since` and `@Until` on record components
 
 ## [0.2.0] - 2022-01-22
 

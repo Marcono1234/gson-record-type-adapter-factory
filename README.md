@@ -87,7 +87,7 @@ or to [force a version number](https://axion-release-plugin.readthedocs.io/en/la
 
 Use `-Prelease.dryRun` to perform a [dry run](https://axion-release-plugin.readthedocs.io/en/latest/configuration/dry_run/).
 
-## Known issues
+## Known issues / limitations
 - **Using a type adapter factory as value for `@JsonAdapter` on a Record component and calling `Gson.getDelegateAdapter`
 inside the factory does not work correctly.**  
 The underlying issue is a [known bug](https://github.com/google/gson/issues/1028) in the implementation of
@@ -102,6 +102,16 @@ preferred. However, Gson does not recognize this Record type adapter factory as 
 always prefer it over any adapter for the base class.  
 This issue can only occur when two or more type adapters for Record classes have been registered, so most use cases
 will be unaffected by this.
+- **Gson field exclusion logic is not supported.**  
+The standard Gson exclusion annotations `@Expose`, `@Since` and `@Until` are not supported on record components and the
+related `GsonBuilder` methods will have no effect because Gson does not expose this exclusion logic as public API.
+Using these annotations on components will cause an exception.  
+Similarly, `ExclusionStrategy.shouldSkipField` implementations have no effect on the serialization and deserialization
+of Record components.
+- **Reflection access filters are not considered.**  
+Gson's [`ReflectionAccessFilter`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/ReflectionAccessFilter.html)
+is not considered to determine whether this Record type adapter may serialize or deserialize a Record class or make its
+canonical constructor or accessor methods accessible.
 
 ## License
 This project [uses the MIT license](./LICENSE.txt); all contributions are implicitly under that license.

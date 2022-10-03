@@ -4,7 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.annotations.Since;
+import com.google.gson.annotations.Until;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -481,5 +485,19 @@ class RecordTypeAdapterFactoryTest {
 
         WithJsonAdapterAnnotation actual = gson.fromJson("{\"i\":1}", WithJsonAdapterAnnotation.class);
         assertEquals(new WithJsonAdapterAnnotation(1), actual);
+    }
+
+    record WithUnsupportedAnnotations(
+        @Expose
+        @Since(1.0)
+        @Until(1.0)
+        @SerializedName("a") // this is supported and should not be included in exception message
+        int i
+    ) { }
+
+    @Test
+    void testUnsupportedAnnotations() {
+        Exception e = assertThrows(RecordTypeAdapterException.class, () -> getDefaultAdapter(WithUnsupportedAnnotations.class));
+        assertEquals("Unsupported annotations on component " + WithUnsupportedAnnotations.class.getName() + ".i: @Expose, @Since, @Until", e.getMessage());
     }
 }

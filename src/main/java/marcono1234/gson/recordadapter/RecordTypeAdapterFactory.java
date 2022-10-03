@@ -6,14 +6,18 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
+import com.google.gson.annotations.Since;
+import com.google.gson.annotations.Until;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
@@ -74,6 +78,13 @@ public class RecordTypeAdapterFactory implements TypeAdapterFactory {
     private static final boolean DEFAULT_ALLOW_JSON_NULL_FOR_PRIMITIVES = false;
     private static final RecordComponentNamingStrategy DEFAULT_NAMING_STRATEGY = RecordComponentNamingStrategy.IDENTITY;
     private static final JsonAdapterCreator DEFAULT_JSON_ADAPTER_CREATOR = JsonAdapterCreator.DEFAULT_CONSTRUCTOR_INVOKER;
+
+    // These annotations are not supported because this adapter factory cannot access Gson's exclusion logic
+    private static final List<Class<? extends Annotation>> UNSUPPORTED_FIELD_ANNOTATIONS = List.of(
+        Expose.class,
+        Since.class,
+        Until.class
+    );
 
     /**
      * Default instance of this factory. This instance
@@ -417,8 +428,18 @@ public class RecordTypeAdapterFactory implements TypeAdapterFactory {
     // Matches behavior of com.google.gson.internal.bind.ReflectiveTypeAdapterFactory.createBoundField
     private TypeAdapter<?> getAdapter(RecordComponent component, Type componentType, Gson gson) throws RecordTypeAdapterException {
         TypeToken<?> componentTypeToken = TypeToken.get(componentType);
+        Field componentField = getComponentField(component);
+        var unsupportedFieldAnnotations = UNSUPPORTED_FIELD_ANNOTATIONS.stream()
+            .filter(componentField::isAnnotationPresent)
+            .toList();
+
+        if (!unsupportedFieldAnnotations.isEmpty()) {
+            String annotationsList = unsupportedFieldAnnotations.stream().map(c -> "@" + c.getSimpleName()).collect(Collectors.joining(", "));
+            throw new RecordTypeAdapterException("Unsupported annotations on component " + getComponentDisplayString(component) + ": " + annotationsList);
+        }
+
         // @JsonAdapter only has FIELD as target, so need to get annotation from component field
-        JsonAdapter jsonAdapterAnnotation = getComponentField(component).getAnnotation(JsonAdapter.class);
+        JsonAdapter jsonAdapterAnnotation = componentField.getAnnotation(JsonAdapter.class);
         if (jsonAdapterAnnotation == null) {
             TypeAdapter<?> adapter = gson.getAdapter(componentTypeToken);
             // Only create runtime type type adapter if no JsonAdapter annotation exists, matching behavior
