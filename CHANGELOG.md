@@ -2,6 +2,8 @@
 
 ## [Unreleased ???] - ???
 
+## [0.3.0] - 2022-10-03
+
 - Fix `ParameterizedTypeImpl` not supporting empty type arguments
 - Update Gson dependency to 2.9.1 and add `RecordComponentNamingStrategy.UPPER_CASE_WITH_UNDERSCORES`, matching Gson's
   new `FieldNamingPolicy` entry
