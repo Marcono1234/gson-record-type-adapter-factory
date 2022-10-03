@@ -2,6 +2,9 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
+import pl.allegro.tech.build.axion.release.domain.hooks.HooksConfig;
+import pl.allegro.tech.build.axion.release.domain.hooks.HookContext;
+
 plugins {
     `java-library`
     `maven-publish`
@@ -16,8 +19,6 @@ group = "marcono1234.gson"
 // See https://axion-release-plugin.readthedocs.io/en/latest/
 version = scmVersion.version
 
-typealias HooksConfig = pl.allegro.tech.build.axion.release.domain.hooks.HooksConfig
-typealias HookContext = pl.allegro.tech.build.axion.release.domain.hooks.HookContext
 scmVersion {
     // Plugin does not support Kotlin DSL yet, see https://github.com/allegro/axion-release-plugin/issues/285
     hooks(closureOf<HooksConfig> {

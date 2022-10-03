@@ -72,6 +72,21 @@ It is built against Java 17, but there is no need to manually install the correc
 feature automatically downloads the needed JDK. Some IDEs do not support toolchains yet, so you might have to
 configure them manually.
 
+### Creating a release
+
+This project uses the [axion-release-plugin](https://axion-release-plugin.readthedocs.io/en/latest/) to create releases.
+It is configured to automatically perform additional tasks, such as updating the [changelog](./CHANGELOG.md) by
+replacing the placeholder `[Unreleased ???] - ???` with the version number and date.
+
+A new release can be created with:
+```
+./gradlew release
+```
+This will automatically increment the version number. It is also possible to adjust [how the version number is incremented](https://axion-release-plugin.readthedocs.io/en/latest/configuration/version/#incrementing)
+or to [force a version number](https://axion-release-plugin.readthedocs.io/en/latest/configuration/force_version/).
+
+Use `-Prelease.dryRun` to perform a [dry run](https://axion-release-plugin.readthedocs.io/en/latest/configuration/dry_run/).
+
 ## Known issues
 - **Using a type adapter factory as value for `@JsonAdapter` on a Record component and calling `Gson.getDelegateAdapter`
 inside the factory does not work correctly.**  
