@@ -71,6 +71,24 @@ public interface RecordComponentNamingStrategy {
 
     /**
      * Splits the Record component name at all existing upper case characters using underscores
+     * and coverts the name to upper case.
+     *
+     * @see FieldNamingPolicy#UPPER_CASE_WITH_UNDERSCORES
+     */
+    RecordComponentNamingStrategy UPPER_CASE_WITH_UNDERSCORES = new RecordComponentNamingStrategy() {
+        @Override
+        public String translateName(RecordComponent component) {
+            return uppercase(separateCamelCase(component.getName(), '_'));
+        }
+
+        @Override
+        public String toString() {
+            return "UPPER_CASE_WITH_UNDERSCORES";
+        }
+    };
+
+    /**
+     * Splits the Record component name at all existing upper case characters using underscores
      * and coverts the name to lower case.
      *
      * @see FieldNamingPolicy#LOWER_CASE_WITH_UNDERSCORES
@@ -171,6 +189,11 @@ public interface RecordComponentNamingStrategy {
         return sb.toString();
     }
 
+    private static String uppercase(String s) {
+        // Locale.ENGLISH to match com.google.gson.FieldNamingPolicy behavior
+        return s.toUpperCase(Locale.ENGLISH);
+    }
+
     private static String lowercase(String s) {
         // Locale.ENGLISH to match com.google.gson.FieldNamingPolicy behavior
         return s.toLowerCase(Locale.ENGLISH);
@@ -196,6 +219,7 @@ public interface RecordComponentNamingStrategy {
             case LOWER_CASE_WITH_UNDERSCORES -> LOWER_CASE_WITH_UNDERSCORES;
             case LOWER_CASE_WITH_DASHES -> LOWER_CASE_WITH_DASHES;
             case LOWER_CASE_WITH_DOTS -> LOWER_CASE_WITH_DOTS;
+            case UPPER_CASE_WITH_UNDERSCORES -> UPPER_CASE_WITH_UNDERSCORES;
             // In case Gson ever adds new policies
             //noinspection UnnecessaryDefault
             default -> throw new IllegalArgumentException("Unsupported field naming policy " + policy);

@@ -94,9 +94,12 @@ class RecordComponentNamingStrategyTest {
     @EnumSource(FieldNamingPolicy.class)
     void testFromFieldNamingPolicy(FieldNamingPolicy fieldNamingPolicy) throws Exception {
         var namingStrategy = RecordComponentNamingStrategy.fromFieldNamingPolicy(fieldNamingPolicy);
+        String name = fieldNamingPolicy.name();
         // Should match naming strategy constant with same name
-        var expectedStrategy = RecordComponentNamingStrategy.class.getField(fieldNamingPolicy.name()).get(null);
+        var expectedStrategy = RecordComponentNamingStrategy.class.getField(name).get(null);
         assertSame(expectedStrategy, namingStrategy);
+
+        assertEquals(name, namingStrategy.toString());
     }
 
     record Identity(
@@ -131,6 +134,12 @@ class RecordComponentNamingStrategyTest {
             assertEquals(
                 expectedName,
                 RecordComponentNamingStrategy.UPPER_CAMEL_CASE.translateName(recordComponent),
+                "Case conversion should not be affected by default Locale"
+            );
+
+            assertEquals(
+                expectedName,
+                RecordComponentNamingStrategy.UPPER_CASE_WITH_UNDERSCORES.translateName(recordComponent),
                 "Case conversion should not be affected by default Locale"
             );
         } finally {
@@ -205,6 +214,24 @@ class RecordComponentNamingStrategyTest {
     @RecordComponentNamingTest(UpperCamelCaseWithSpaces.class)
     void testUpperCamelCaseWithSpaces(RecordComponent recordComponent, String expectedName) {
         assertEquals(expectedName, RecordComponentNamingStrategy.UPPER_CAMEL_CASE_WITH_SPACES.translateName(recordComponent));
+    }
+
+    record UpperCaseWithUnderscores(
+        @ExpectedName("I")
+        int i,
+        @ExpectedName("AB_CD")
+        int AbCd,
+        @ExpectedName("A_B_C_D")
+        int ABCD,
+        @ExpectedName("A_B_C_D")
+        int aBCD,
+        @ExpectedName("_TE_ST")
+        int _teSt
+    ) { }
+
+    @RecordComponentNamingTest(UpperCaseWithUnderscores.class)
+    void testUpperCaseWithUnderscores(RecordComponent recordComponent, String expectedName) {
+        assertEquals(expectedName, RecordComponentNamingStrategy.UPPER_CASE_WITH_UNDERSCORES.translateName(recordComponent));
     }
 
     record LowerCaseWithUnderscores(

@@ -46,7 +46,7 @@ java {
     withJavadocJar()
 }
 
-val gsonVersion = "2.8.9"
+val gsonVersion = "2.9.1"
 dependencies {
     api("com.google.code.gson:gson:$gsonVersion")
 }
