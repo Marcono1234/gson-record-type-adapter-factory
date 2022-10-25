@@ -11,6 +11,8 @@
 [Record classes](https://docs.oracle.com/en/java/javase/17/language/records.html) (Java 16 feature). This project
 was inspired by the discussion on [Gson issue #1794](https://github.com/google/gson/issues/1794).
 
+:information_source: Gson has since [version 2.10](https://github.com/google/gson/releases/tag/gson-parent-2.10) built-in support for Record classes. Usage of this separate type adapter factory is therefore not necessary anymore, unless you want to use the extended customization options this factory provides.
+
 ## Features
 - [`@SerializedName`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/annotations/SerializedName.html) on Record components
 - [`@JsonAdapter`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/annotations/JsonAdapter.html) on Record components
